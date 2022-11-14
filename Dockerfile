@@ -10,20 +10,10 @@ RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         python3 \
         python3-dev \
-        python3-setuptools \
-        python3-wheel \
         python3-pip \
-        python3-requests \
-        python3-bs4 \
-        python3-openssl \
-        python3-cryptography \
-        python3-more-itertools \
-        python3-dnspython \
-        python3-tldextract \
-        python3-yaml \
-        python3-ipaddr \
-        python3-lxml \
-        virtualenv \
+	python3-wheel \
+	python3-setuptools \
+	virtualenv \
         gcc \
         git \
         less \
@@ -34,9 +24,11 @@ RUN apt-get update \
         libgtk-3-0 \
         libxslt1-dev \
         libxxf86vm-dev \
-        python3-typing-extensions \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -ms /bin/bash developer
+
+RUN pip3 install \
+ typing-extensions
 
 WORKDIR /opt/pycharm
 
@@ -44,6 +36,10 @@ RUN curl -fsSL $pycharm_source -o /opt/pycharm/installer.tgz \
   && echo "Please verify the hashsum over e.g. Tor: $(sha256sum /opt/pycharm/installer.tgz)" \
   && tar --strip-components=1 -xzf installer.tgz \
   && rm installer.tgz
+
+RUN echo "Fix for some type annotations, for example in the redis package" \
+  && echo "https://github.com/redis/redis-py/issues/2249#issuecomment-1172943002" \
+  && cd /opt/pycharm/plugins/python-ce/helpers/ && rm -rf typeshed && git clone https://github.com/python/typeshed.git
 
 USER developer
 ENV HOME /home/developer
